@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gadget – Lecco Pride</title>
+<link rel="icon" href="https://www.leccopride.it/wordpress/wp-content/uploads/2026/02/cropped-1000235943.png">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --giallo: #FFD93D;
+    --arancio: #FF6B35;
+    --verde: #2EC4B6;
+    --rosa: #FF6B9D;
+    --blu: #1A1A2E;
+    --carta: #FFFBF0;
+    --testo: #1A1A2E;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--carta);
+    color: var(--testo);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--blu);
+    color: white;
+    padding: 0 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: var(--giallo);
+    border-radius: 50%;
+    opacity: 0.15;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 10%;
+    width: 300px; height: 300px;
+    background: var(--verde);
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 0 2.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  .header-badge {
+    display: inline-block;
+    background: var(--giallo);
+    color: var(--blu);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 1rem;
+  }
+  header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+  }
+  header h1 span { color: var(--giallo); }
+  header p {
+    font-size: 1rem;
+    opacity: 0.75;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* NOTICE DONAZIONE */
+  .notice {
+    background: var(--verde);
+    color: white;
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  .notice strong { font-weight: 700; }
+
+  /* PRODOTTI */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--giallo);
+    border-radius: 2px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--arancio);
+    box-shadow: 0 12px 32px rgba(255,107,53,0.15);
+  }
+  .card-thumb {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+  }
+  .c1 { background: #FFF3CD; }
+  .c2 { background: #D0F4EF; }
+  .c3 { background: #FFE5F1; }
+  .c4 { background: #E8F4FF; }
+  .c5 { background: #EDF9E5; }
+  .c6 { background: #FFF0E8; }
+
+  .card-body { padding: 1rem 1.2rem 1.2rem; }
+  .card-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .card-desc {
+    font-size: 0.82rem;
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-price {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--arancio);
+    font-family: 'Fraunces', serif;
+  }
+  .btn-prenota {
+    background: var(--blu);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 7px 18px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-prenota:hover { background: var(--arancio); }
+  .btn-prenota:active { transform: scale(0.97); }
+
+  /* MODAL */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,46,0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    animation: pop 0.25s ease;
+  }
+  @keyframes pop {
+    from { transform: scale(0.92); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 50%;
+    width: 32px; height: 32px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: #e0e0e0; }
+  .modal h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .modal-item-info {
+    font-size: 0.85rem;
+    color: var(--arancio);
+    font-weight: 500;
+    margin-bottom: 1.25rem;
+  }
+  .form-row { margin-bottom: 1rem; }
+  .form-row label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #e8e8e8;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.15s;
+    background: #fafafa;
+  }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus { border-color: var(--verde); background: white; }
+  .form-row textarea { height: 80px; resize: none; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--arancio);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 13px;
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.01em;
+  }
+  .btn-submit:hover { background: #e55a25; }
+  .btn-submit:active { transform: scale(0.98); }
+
+  .legal-note {
+    font-size: 0.72rem;
+    color: #999;
+    text-align: center;
+    margin-top: 0.75rem;
+    line-height: 1.5;
+  }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 1rem 0;
+  }
+  .success-icon {
+    font-size: 3.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .success-screen h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+  .success-screen p {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--blu);
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.8rem;
+    margin-top: 4rem;
+  }
+  footer strong { color: white; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-badge">🌈 Lecco Pride — Shop Ufficiale</div>
+    <h1>I nostri <span>gadget</span>,<br>il tuo supporto.</h1>
+    <p>Ogni acquisto è una donazione che sostiene le nostre attività. Scegli quello che ti piace, prenota online e ritira al nostro banchetto!</p>
+  </div>
+</header>
+
+<div class="notice">
+  🤝 <strong>Come funziona:</strong> prenota qui, ritira di persona e dona liberamente l'importo indicato. Nessun pagamento online.
+</div>
+
+<main>
+  <div class="section-title">I nostri gadget</div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <strong>Lecco Pride</strong> · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6b02050d042b070e0808041b19020f0e45021f">[email&#160;protected]</a>  · Via Isidoro Calloni, 14 - Lecco (LC)<br>
+  <span style="margin-top:4px;display:block">Associazione LGBTQIA+ · C.F. 00000000000</span>
+</footer>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="chiudiModal()">✕</button>
+    <div id="modal-form-area">
+      <h2 id="modal-titolo">Prenota gadget</h2>
+      <div class="modal-item-info" id="modal-info"></div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Nome *</label>
+          <input type="text" id="inp-nome" placeholder="Mario" />
+        </div>
+        <div class="form-row">
+          <label>Cognome *</label>
+          <input type="text" id="inp-cognome" placeholder="Rossi" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Email *</label>
+        <input type="email" id="inp-email" placeholder="mario@email.it" />
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Telefono</label>
+          <input type="tel" id="inp-tel" placeholder="+39 333 000000" />
+        </div>
+        <div class="form-row">
+          <label>Quantità</label>
+          <select id="inp-qty">
+            <option>1</option><option>2</option><option>3</option>
+            <option>4</option><option>5</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Note (colore, taglia, ecc.)</label>
+        <textarea id="inp-note" placeholder="Es. taglia M, colore verde..."></textarea>
+      </div>
+      <button class="btn-submit" onclick="invia()">Invia prenotazione →</button>
+      <p class="legal-note">Riceverai una email di conferma. Il pagamento avverrà in loco come donazione liberale all'associazione.</p>
+    </div>
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">🎉</div>
+      <h2>Prenotazione inviata!</h2>
+      <p>Grazie <strong id="success-nome"></strong>! Ti abbiamo mandato una conferma a <strong id="success-email"></strong>.<br><br>Ci vediamo al banchetto per il ritiro e la donazione.</p>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ─────────────────────────────────────────────
+//  CONFIGURAZIONE — modifica questi valori
+// ─────────────────────────────────────────────
+const EJS_PUBLIC_KEY        = '4qGPl5vt0ksH6TLe0';      // Account > API Keys
+const EJS_SERVICE_ID        = 'service_ts7d0t9';         // Email Services
+const EJS_TEMPLATE_CLIENTE  = 'template_d3gthyl'; // Template conferma cliente
+const GOOGLE_SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbwjmU-JF0-PmXPNDu4dVXIWdHdXMbfvmN6BAOaE0clyqpkHgmk8kalgt0qXuQr-nief/exec';  // URL dello script Google
+// ─────────────────────────────────────────────
+
+emailjs.init({ publicKey: EJS_PUBLIC_KEY });
+
+const prodotti = [
+  { emoji:"👕", colore:"c1", nome:"T-shirt Lecco Pride 2025", desc:"Maglietta unisex con disegno e logo LeccoPride stampata da cooperativa Sprint.", prezzo:"15" },
+  { emoji:"☂️", colore:"c2", nome:"Ombrello grande rainbow", desc:"A prova di pioggia e di omotransfobia. Ampio, resistente, con i colori della nostra lotta e del nostro orgoglio. Perfetto per ripararsi in caso di pioggia durante il corteo… e farsi notare!", prezzo:"10" },
+  { emoji:"🥛", colore:"c3", nome:"Bicchiere", desc:"ARiutilizzabile, resistente, e super queer. Perfetto per brindare all’orgoglio, all’amore e alla lotta! Con logo Lecco Pride", prezzo:"2" },
+  { emoji:"🎒", colore:"c4", nome:"Sacca Rainbow", desc:"Leggera, resistente e piena di orgoglio. Ideale per portare con te tutto quello che serve per la parata. Con i colori della bandiera rainbow, perché ogni passo sia visibile e fiero.", prezzo:"5" },
+  { emoji:"📓", colore:"c5", nome:"Taccuino Rainbow", desc:"Per idee, appunti, sogni e rivoluzioni. Copertina rainbow, pagine bianche pronte a ospitare visioni queer e pensieri liberi", prezzo:"6" },
+  { emoji:"🔑", colore:"c6", nome:"Cordino Moschettone", desc:"Ideale per portachiavi, badge o semplicemente per tenere al collo un messaggio chiaro: ci siamo, e brilliamo.", prezzo:"3" },
+  { emoji:"🪭", colore:"c1", nome:"Ventaglio Rainbow", desc:"Iconico, scenico e soprattutto rinfrescante. Perfetto per sventolare orgoglio, stile e un po’ d’aria tra una rivendicazione e l’altra. Perché fare attivismo non vuol dire sudare in silenzio.", prezzo:"5" },
+  { emoji:"👝", colore:"c2", nome:"Pochette in stoffa + Spilla Fimo Arcobaleno", desc:"Colori che urlano orgoglio e praticità da portare sempre con te. La pochette è perfetta per custodire ciò che vuoi, la spilla in fimo fatta a mano aggiunge un tocco artigianale e fiero. Una combo che dice chi sei, senza bisogno di spiegazioni", prezzo:"2 - 5" },
+  { emoji:"🧷", colore:"c2", nome: "Spillette e calamite con grafica", desc:"Piccole, ma potenti: con grafiche inclusive, pronoun pins e colori delle bandiere LGBTQIA+. Da attaccare, regalare, collezionare. In versione spilla o calamita, per portare sempre con te il tuo orgoglio e quello della tua comunità.", prezzo:"2" },
+  { emoji:"💧", colore:"c3", nome:"Borraccia", desc:"Questo è anche un gadget a “chilometro 0”, senza costi di trasporto e quindi senza emissioni di C02. Le nostre borracce, infatti, sono made in Italy, prodotte da una azienda di Valmadrera, in provincia di Lecco. Sono fatte di alluminio riciclato, BPA free e adatte all’uso alimentare. Anche per la stampa del logo ci siamo rivolti ad una azienda locale: una cooperativa sociale di Oggiono.", prezzo:"2" },
+
+];
+
+const grid = document.getElementById('grid');
+prodotti.forEach((p, i) => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-thumb ${p.colore}">${p.emoji}</div>
+    <div class="card-body">
+      <div class="card-name">${p.nome}</div>
+      <div class="card-desc">${p.desc}</div>
+      <div class="card-footer">
+        <div class="card-price">€ ${p.prezzo}</div>
+        <button class="btn-prenota" onclick="apriModal(${i})">Prenota</button>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+});
+
+let itemCorrente = null;
+function apriModal(i) {
+  itemCorrente = prodotti[i];
+  document.getElementById('modal-titolo').textContent = itemCorrente.nome;
+  document.getElementById('modal-info').textContent = '€ ' + itemCorrente.prezzo + ' — donazione al ritiro';
+  document.getElementById('modal-form-area').style.display = 'block';
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('overlay').classList.add('open');
+}
+function chiudiModal() {
+  document.getElementById('overlay').classList.remove('open');
+  ['inp-nome','inp-cognome','inp-email','inp-tel','inp-note'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inp-qty').selectedIndex = 0;
+}
+document.getElementById('overlay').addEventListener('click', function(e) {
+  if (e.target === this) chiudiModal();
+});
+
+async function invia() {
+  const nome    = document.getElementById('inp-nome').value.trim();
+  const cognome = document.getElementById('inp-cognome').value.trim();
+  const email   = document.getElementById('inp-email').value.trim();
+  if (!nome || !cognome || !email) { alert('Compila nome, cognome ed email per procedere.'); return; }
+  if (!email.includes('@')) { alert('Inserisci un indirizzo email valido.'); return; }
+
+  const qty  = document.getElementById('inp-qty').value;
+  const note = document.getElementById('inp-note').value.trim();
+  const tel  = document.getElementById('inp-tel').value.trim();
+
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Invio in corso…';
+  btn.disabled = true;
+
+  try {
+    const dati = {
+      gadget:   itemCorrente.nome,
+      prezzo:   '€ ' + itemCorrente.prezzo,
+      quantita: qty,
+      nome:     nome + ' ' + cognome,
+      email:    email,
+      telefono: tel || '—',
+      note:     note || '—',
+    };
+
+    // 1. Salva su Google Sheets
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(dati),
+    });
+
+    // 2. Manda mail di conferma al cliente
+    await emailjs.send(EJS_SERVICE_ID, EJS_TEMPLATE_CLIENTE, dati);
+
+    document.getElementById('modal-form-area').style.display = 'none';
+    document.getElementById('success-nome').textContent  = nome;
+    document.getElementById('success-email').textContent = email;
+    document.getElementById('success-screen').style.display = 'block';
+    ['inp-nome','inp-cognome','inp-email','inp-tel','inp-note'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('inp-qty').selectedIndex = 0;
+  } catch(err) {
+    alert('Errore durante l\'invio. Riprova o contattaci direttamente.');
+    console.error(err);
+  } finally {
+    btn.textContent = 'Invia prenotazione →';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
