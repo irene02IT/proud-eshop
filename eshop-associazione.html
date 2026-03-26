@@ -393,6 +393,12 @@
         <label>Note (colore, taglia, ecc.)</label>
         <textarea id="inp-note" placeholder="Es. taglia M, colore verde..."></textarea>
       </div>
+      <div class="form-row" style="display:flex; align-items:flex-start; gap:10px; margin-top:0.5rem;">
+        <input type="checkbox" id="inp-gdpr" style="margin-top:3px; width:16px; height:16px; flex-shrink:0; cursor:pointer;" />
+        <label for="inp-gdpr" style="font-size:0.75rem; color:#666; line-height:1.5; text-transform:none; letter-spacing:0; font-weight:400; cursor:pointer;">
+          Ho letto e accetto l'<a href="#" onclick="alert('Inserire qui link alla privacy policy dell\'associazione'); return false;" style="color:var(--arancio);">informativa sulla privacy</a>. I miei dati (nome, email, telefono) saranno usati esclusivamente per gestire questa prenotazione e non saranno ceduti a terzi. *
+        </label>
+      </div>
       <button class="btn-submit" onclick="invia()">Invia prenotazione →</button>
       <p class="legal-note">Riceverai una email di conferma. Il pagamento avverrà in loco come donazione liberale all'associazione.</p>
     </div>
@@ -412,6 +418,7 @@ const EJS_PUBLIC_KEY        = '4qGPl5vt0ksH6TLe0';      // Account > API Keys
 const EJS_SERVICE_ID        = 'service_ts7d0t9';         // Email Services
 const EJS_TEMPLATE_CLIENTE  = 'template_d3gthyl'; // Template conferma cliente
 const GOOGLE_SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbwjmU-JF0-PmXPNDu4dVXIWdHdXMbfvmN6BAOaE0clyqpkHgmk8kalgt0qXuQr-nief/exec';  // URL dello script Google
+const SCRIPT_TOKEN          = 'Proudtobe2026!'; // Token anti-spam (stesso valore nello script Google)
 // ─────────────────────────────────────────────
 
 emailjs.init({ publicKey: EJS_PUBLIC_KEY });
@@ -471,6 +478,7 @@ async function invia() {
   const email   = document.getElementById('inp-email').value.trim();
   if (!nome || !cognome || !email) { alert('Compila nome, cognome ed email per procedere.'); return; }
   if (!email.includes('@')) { alert('Inserisci un indirizzo email valido.'); return; }
+  if (!document.getElementById('inp-gdpr').checked) { alert('Devi accettare l\'informativa sulla privacy per procedere.'); return; }
 
   const qty  = document.getElementById('inp-qty').value;
   const note = document.getElementById('inp-note').value.trim();
@@ -494,7 +502,7 @@ async function invia() {
     // 1. Salva su Google Sheets
     await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
-      body: JSON.stringify(dati),
+      body: JSON.stringify({ ...dati, token: SCRIPT_TOKEN }),
     });
 
     // 2. Manda mail di conferma al cliente
