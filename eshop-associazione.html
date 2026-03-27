@@ -140,7 +140,6 @@
     box-shadow: 0 12px 32px rgba(255,107,53,0.15);
   }
   .card-thumb {
-    height: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -155,6 +154,12 @@
   .c6 { background: #FFF0E8; }
 
   .card-body { padding: 1rem 1.2rem 1.2rem; }
+
+  .card-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
   .card-name {
     font-family: 'Fraunces', serif;
     font-size: 1.05rem;
@@ -424,16 +429,16 @@ const SCRIPT_TOKEN          = 'Proudtobe2026!'; // Token anti-spam (stesso valor
 emailjs.init({ publicKey: EJS_PUBLIC_KEY });
 
 const prodotti = [
-  { emoji:"👕", colore:"c1", nome:"T-shirt Lecco Pride 2025", desc:"Maglietta unisex con disegno e logo LeccoPride stampata da cooperativa Sprint.", prezzo:"15" },
-  { emoji:"☂️", colore:"c2", nome:"Ombrello grande rainbow", desc:"A prova di pioggia e di omotransfobia. Ampio, resistente, con i colori della nostra lotta e del nostro orgoglio. Perfetto per ripararsi in caso di pioggia durante il corteo… e farsi notare!", prezzo:"10" },
-  { emoji:"🥛", colore:"c3", nome:"Bicchiere", desc:"ARiutilizzabile, resistente, e super queer. Perfetto per brindare all’orgoglio, all’amore e alla lotta! Con logo Lecco Pride", prezzo:"2" },
-  { emoji:"🎒", colore:"c4", nome:"Sacca Rainbow", desc:"Leggera, resistente e piena di orgoglio. Ideale per portare con te tutto quello che serve per la parata. Con i colori della bandiera rainbow, perché ogni passo sia visibile e fiero.", prezzo:"5" },
-  { emoji:"📓", colore:"c5", nome:"Taccuino Rainbow", desc:"Per idee, appunti, sogni e rivoluzioni. Copertina rainbow, pagine bianche pronte a ospitare visioni queer e pensieri liberi", prezzo:"6" },
-  { emoji:"🔑", colore:"c6", nome:"Cordino Moschettone", desc:"Ideale per portachiavi, badge o semplicemente per tenere al collo un messaggio chiaro: ci siamo, e brilliamo.", prezzo:"3" },
-  { emoji:"🪭", colore:"c1", nome:"Ventaglio Rainbow", desc:"Iconico, scenico e soprattutto rinfrescante. Perfetto per sventolare orgoglio, stile e un po’ d’aria tra una rivendicazione e l’altra. Perché fare attivismo non vuol dire sudare in silenzio.", prezzo:"5" },
-  { emoji:"👝", colore:"c2", nome:"Pochette in stoffa + Spilla Fimo Arcobaleno", desc:"Colori che urlano orgoglio e praticità da portare sempre con te. La pochette è perfetta per custodire ciò che vuoi, la spilla in fimo fatta a mano aggiunge un tocco artigianale e fiero. Una combo che dice chi sei, senza bisogno di spiegazioni", prezzo:"2 - 5" },
-  { emoji:"🧷", colore:"c2", nome: "Spillette e calamite con grafica", desc:"Piccole, ma potenti: con grafiche inclusive, pronoun pins e colori delle bandiere LGBTQIA+. Da attaccare, regalare, collezionare. In versione spilla o calamita, per portare sempre con te il tuo orgoglio e quello della tua comunità.", prezzo:"2" },
-  { emoji:"💧", colore:"c3", nome:"Borraccia", desc:"Questo è anche un gadget a “chilometro 0”, senza costi di trasporto e quindi senza emissioni di C02. Le nostre borracce, infatti, sono made in Italy, prodotte da una azienda di Valmadrera, in provincia di Lecco. Sono fatte di alluminio riciclato, BPA free e adatte all’uso alimentare. Anche per la stampa del logo ci siamo rivolti ad una azienda locale: una cooperativa sociale di Oggiono.", prezzo:"2" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131110-scaled-1.jpg", colore:"c1", nome:"T-shirt Lecco Pride 2025", desc:"Maglietta unisex con disegno e logo LeccoPride stampata da cooperativa Sprint.", prezzo:"15" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_130914-scaled-1.jpg", colore:"c2", nome:"Ombrello grande rainbow", desc:"A prova di pioggia e di omotransfobia. Ampio, resistente, con i colori della nostra lotta e del nostro orgoglio. Perfetto per ripararsi in caso di pioggia durante il corteo… e farsi notare!", prezzo:"10" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-1000039281-scaled-1.jpg", colore:"c3", nome:"Bicchiere", desc:"ARiutilizzabile, resistente, e super queer. Perfetto per brindare all’orgoglio, all’amore e alla lotta! Con logo Lecco Pride", prezzo:"2" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-1000039402-scaled-1.jpg", colore:"c4", nome:"Sacca Rainbow", desc:"Leggera, resistente e piena di orgoglio. Ideale per portare con te tutto quello che serve per la parata. Con i colori della bandiera rainbow, perché ogni passo sia visibile e fiero.", prezzo:"5" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_130957-scaled-1.jpg", colore:"c5", nome:"Taccuino Rainbow", desc:"Per idee, appunti, sogni e rivoluzioni. Copertina rainbow, pagine bianche pronte a ospitare visioni queer e pensieri liberi", prezzo:"6" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131212-scaled-1.jpg", colore:"c6", nome:"Cordino Moschettone", desc:"Ideale per portachiavi, badge o semplicemente per tenere al collo un messaggio chiaro: ci siamo, e brilliamo.", prezzo:"3" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131212-scaled-1.jpg", colore:"c1", nome:"Ventaglio Rainbow", desc:"Iconico, scenico e soprattutto rinfrescante. Perfetto per sventolare orgoglio, stile e un po’ d’aria tra una rivendicazione e l’altra. Perché fare attivismo non vuol dire sudare in silenzio.", prezzo:"5" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131030-scaled-1.jpg", colore:"c2", nome:"Pochette in stoffa + Spilla Fimo Arcobaleno", desc:"Colori che urlano orgoglio e praticità da portare sempre con te. La pochette è perfetta per custodire ciò che vuoi, la spilla in fimo fatta a mano aggiunge un tocco artigianale e fiero. Una combo che dice chi sei, senza bisogno di spiegazioni", prezzo:"2 - 5" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131226.jpg", colore:"c2", nome: "Spillette e calamite con grafica", desc:"Piccole, ma potenti: con grafiche inclusive, pronoun pins e colori delle bandiere LGBTQIA+. Da attaccare, regalare, collezionare. In versione spilla o calamita, per portare sempre con te il tuo orgoglio e quello della tua comunità.", prezzo:"2" },
+  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2021/06/cropped-cropped-MG_9993-scaled-1.jpg", colore:"c3", nome:"Borraccia", desc:"Questo è anche un gadget a “chilometro 0”, senza costi di trasporto e quindi senza emissioni di C02. Le nostre borracce, infatti, sono made in Italy, prodotte da una azienda di Valmadrera, in provincia di Lecco. Sono fatte di alluminio riciclato, BPA free e adatte all’uso alimentare. Anche per la stampa del logo ci siamo rivolti ad una azienda locale: una cooperativa sociale di Oggiono.", prezzo:"2" },
 
 ];
 
@@ -442,7 +447,7 @@ prodotti.forEach((p, i) => {
   const card = document.createElement('div');
   card.className = 'card';
   card.innerHTML = `
-    <div class="card-thumb ${p.colore}">${p.emoji}</div>
+    <div class="card-thumb ${p.colore}"><img src="${p.img}" alt="${p.nome}"></div>
     <div class="card-body">
       <div class="card-name">${p.nome}</div>
       <div class="card-desc">${p.desc}</div>
