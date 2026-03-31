@@ -183,6 +183,19 @@
     color: var(--arancio);
     font-family: 'Fraunces', serif;
   }
+  .badge-esaurito {
+    display: inline-block;
+    background: #eee;
+    color: #999;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 100px;
+    border: 1.5px solid #ddd;
+  }
+  .card.esaurita { opacity: 0.6; }
+  .card.esaurita .card-thumb { filter: grayscale(60%); }
+
   .btn-prenota {
     background: var(--blu);
     color: white;
@@ -422,52 +435,81 @@
 const EJS_PUBLIC_KEY        = '4qGPl5vt0ksH6TLe0';      // Account > API Keys
 const EJS_SERVICE_ID        = 'service_ts7d0t9';         // Email Services
 const EJS_TEMPLATE_CLIENTE  = 'template_d3gthyl'; // Template conferma cliente
-const GOOGLE_SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbwjmU-JF0-PmXPNDu4dVXIWdHdXMbfvmN6BAOaE0clyqpkHgmk8kalgt0qXuQr-nief/exec';  // URL dello script Google
+const GOOGLE_SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbyyAoUutVo4KBrre9PMQvhADpHWvmFLOiXaJWUqoQ5sWK5u9Kock4LkPKRs4cN9J5SERA/exec';  // URL dello script Google
 const SCRIPT_TOKEN          = 'Proudtobe2026!'; // Token anti-spam (stesso valore nello script Google)
 // ─────────────────────────────────────────────
 
 emailjs.init({ publicKey: EJS_PUBLIC_KEY });
 
-const prodotti = [
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131110-scaled-1.jpg", colore:"c1", nome:"T-shirt Lecco Pride 2025", desc:"Maglietta unisex con disegno e logo LeccoPride stampata da cooperativa Sprint.", prezzo:"15" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_130914-scaled-1.jpg", colore:"c2", nome:"Ombrello grande rainbow", desc:"A prova di pioggia e di omotransfobia. Ampio, resistente, con i colori della nostra lotta e del nostro orgoglio. Perfetto per ripararsi in caso di pioggia durante il corteo… e farsi notare!", prezzo:"10" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-1000039281-scaled-1.jpg", colore:"c3", nome:"Bicchiere", desc:"ARiutilizzabile, resistente, e super queer. Perfetto per brindare all’orgoglio, all’amore e alla lotta! Con logo Lecco Pride", prezzo:"2" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-1000039402-scaled-1.jpg", colore:"c4", nome:"Sacca Rainbow", desc:"Leggera, resistente e piena di orgoglio. Ideale per portare con te tutto quello che serve per la parata. Con i colori della bandiera rainbow, perché ogni passo sia visibile e fiero.", prezzo:"5" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_130957-scaled-1.jpg", colore:"c5", nome:"Taccuino Rainbow", desc:"Per idee, appunti, sogni e rivoluzioni. Copertina rainbow, pagine bianche pronte a ospitare visioni queer e pensieri liberi", prezzo:"6" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131212-scaled-1.jpg", colore:"c6", nome:"Cordino Moschettone", desc:"Ideale per portachiavi, badge o semplicemente per tenere al collo un messaggio chiaro: ci siamo, e brilliamo.", prezzo:"3" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131212-scaled-1.jpg", colore:"c1", nome:"Ventaglio Rainbow", desc:"Iconico, scenico e soprattutto rinfrescante. Perfetto per sventolare orgoglio, stile e un po’ d’aria tra una rivendicazione e l’altra. Perché fare attivismo non vuol dire sudare in silenzio.", prezzo:"5" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131030-scaled-1.jpg", colore:"c2", nome:"Pochette in stoffa + Spilla Fimo Arcobaleno", desc:"Colori che urlano orgoglio e praticità da portare sempre con te. La pochette è perfetta per custodire ciò che vuoi, la spilla in fimo fatta a mano aggiunge un tocco artigianale e fiero. Una combo che dice chi sei, senza bisogno di spiegazioni", prezzo:"2 - 5" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2025/06/cropped-IMG_20250601_131226.jpg", colore:"c2", nome: "Spillette e calamite con grafica", desc:"Piccole, ma potenti: con grafiche inclusive, pronoun pins e colori delle bandiere LGBTQIA+. Da attaccare, regalare, collezionare. In versione spilla o calamita, per portare sempre con te il tuo orgoglio e quello della tua comunità.", prezzo:"2" },
-  { img:"https://www.leccopride.it/wordpress/wp-content/uploads/2021/06/cropped-cropped-MG_9993-scaled-1.jpg", colore:"c3", nome:"Borraccia", desc:"Questo è anche un gadget a “chilometro 0”, senza costi di trasporto e quindi senza emissioni di C02. Le nostre borracce, infatti, sono made in Italy, prodotte da una azienda di Valmadrera, in provincia di Lecco. Sono fatte di alluminio riciclato, BPA free e adatte all’uso alimentare. Anche per la stampa del logo ci siamo rivolti ad una azienda locale: una cooperativa sociale di Oggiono.", prezzo:"2" },
+// Carica prodotti dal Google Sheets
+let prodotti = [];
 
-];
+async function caricaProdotti() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '<p style="color:#999;font-size:0.9rem;padding:2rem 0;">Caricamento prodotti in corso...</p>';
+  try {
+    const res  = await fetch(GOOGLE_SCRIPT_URL + '?azione=prodotti');
+    const json = await res.json();
+    prodotti   = json.filter(p => p.disponibile === 'SI');
+    mostraProdotti();
+  } catch(err) {
+    grid.innerHTML = '<p style="color:#c00;font-size:0.9rem;padding:2rem 0;">Errore nel caricamento. Ricarica la pagina.</p>';
+    console.error(err);
+  }
+}
 
-const grid = document.getElementById('grid');
-prodotti.forEach((p, i) => {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.innerHTML = `
-    <div class="card-thumb ${p.colore}"><img src="${p.img}" alt="${p.nome}"></div>
-    <div class="card-body">
-      <div class="card-name">${p.nome}</div>
-      <div class="card-desc">${p.desc}</div>
-      <div class="card-footer">
-        <div class="card-price">€ ${p.prezzo}</div>
-        <button class="btn-prenota" onclick="apriModal(${i})">Prenota</button>
-      </div>
-    </div>`;
-  grid.appendChild(card);
-});
+function mostraProdotti() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const colori = ['c1','c2','c3','c4','c5','c6'];
+  prodotti.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'card' + (p.esaurito === true || p.esaurito === 'true' ? ' esaurita' : '');
+    const thumbContent = p.img
+      ? '<img src="' + p.img + '" alt="' + p.nome + '" style="width:100%;height:100%;object-fit:cover;">'
+      : '<span style="font-size:3.5rem;">' + (p.emoji || '&#127873;') + '</span>';
+    const qtyLabel = (!p.esaurito && p.quantita <= 5 && p.quantita > 0)
+      ? '<span style="font-size:0.75rem;color:#c00;font-weight:500;">Ultimi ' + p.quantita + '!</span>'
+      : '';
+    const btnHtml = p.esaurito === true || p.esaurito === 'true'
+      ? '<span class="badge-esaurito">Esaurito</span>'
+      : '<button class="btn-prenota" onclick="apriModal(' + i + ')">Prenota</button>';
+    card.innerHTML =
+      '<div class="card-thumb ' + colori[i % colori.length] + '">' + thumbContent + '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-name">' + p.nome + '</div>' +
+        '<div class="card-desc">' + p.desc + '</div>' +
+        '<div class="card-footer">' +
+          '<div>' +
+            '<div class="card-price">&#8364; ' + p.prezzo + '</div>' +
+            qtyLabel +
+          '</div>' +
+          btnHtml +
+        '</div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+caricaProdotti();
 
 let itemCorrente = null;
 function apriModal(i) {
-  itemCorrente = prodotti[i];
+  itemCorrente = { ...prodotti[i], indice: i };
   document.getElementById('modal-titolo').textContent = itemCorrente.nome;
   document.getElementById('modal-info').textContent = '€ ' + itemCorrente.prezzo + ' — donazione al ritiro';
+  // Limita quantita selezionabile alla disponibilita reale
+  const qtySelect = document.getElementById('inp-qty');
+  const maxQty = itemCorrente.quantita > 0 ? Math.min(itemCorrente.quantita, 5) : 1;
+  qtySelect.innerHTML = '';
+  for (let q = 1; q <= maxQty; q++) {
+    qtySelect.innerHTML += '<option>' + q + '</option>';
+  }
   document.getElementById('modal-form-area').style.display = 'block';
   document.getElementById('success-screen').style.display = 'none';
   document.getElementById('overlay').classList.add('open');
 }
+
 function chiudiModal() {
   document.getElementById('overlay').classList.remove('open');
   ['inp-nome','inp-cognome','inp-email','inp-tel','inp-note'].forEach(id => document.getElementById(id).value = '');
@@ -501,7 +543,8 @@ async function invia() {
       nome:     nome + ' ' + cognome,
       email:    email,
       telefono: tel || '—',
-      note:     note || '—',
+      note:          note || '—',
+      riga_prodotto: itemCorrente.riga || '',
     };
 
     // 1. Salva su Google Sheets
