@@ -425,6 +425,16 @@
       <h2>Prenotazione inviata!</h2>
       <p>Grazie <strong id="success-nome"></strong>! Ti abbiamo mandato una conferma a <strong id="success-email"></strong>.<br><br>Ci vediamo al banchetto per il ritiro e la donazione.</p>
     </div>
+    <div class="success-screen" id="annulla-screen">
+      <div class="success-icon">✅</div>
+      <h2>Prenotazione annullata</h2>
+      <p>La tua prenotazione è stata annullata con successo. Il gadget è stato rimesso a disposizione.</p>
+    </div>
+    <div class="success-screen" id="annulla-error-screen">
+      <div class="success-icon">❌</div>
+      <h2>Annullamento non riuscito</h2>
+      <p id="annulla-error-msg">ID prenotazione non trovato o già annullata.</p>
+    </div>
   </div>
 </div>
 
@@ -435,8 +445,9 @@
 const EJS_PUBLIC_KEY        = '4qGPl5vt0ksH6TLe0';      // Account > API Keys
 const EJS_SERVICE_ID        = 'service_ts7d0t9';         // Email Services
 const EJS_TEMPLATE_CLIENTE  = 'template_d3gthyl'; // Template conferma cliente
-const GOOGLE_SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbyyAoUutVo4KBrre9PMQvhADpHWvmFLOiXaJWUqoQ5sWK5u9Kock4LkPKRs4cN9J5SERA/exec';  // URL dello script Google
-const SCRIPT_TOKEN          = 'Proudtobe2026!'; // Token anti-spam (stesso valore nello script Google)
+const GOOGLE_SCRIPT_URL     = 'https://script.google.com/macros/s/AKfycbwW0Y05M4-Fma3wWpJblOCxCeTh9N8vj2J7Bht2g5Dic1NmZpAmb6ezVyEZBV8fRwyv0Q/exec';  // URL dello script Google
+const SCRIPT_TOKEN          = 'Proudtobe2026!'; // Token anti-spam
+const SITO_URL              = 'file:///Users/ireneerba/Documents/1.Personal/Projects/proud-eshop/eshop-associazione.html';  // URL pubblico del sito (senza slash finale) (stesso valore nello script Google)
 // ─────────────────────────────────────────────
 
 emailjs.init({ publicKey: EJS_PUBLIC_KEY });
@@ -519,6 +530,11 @@ document.getElementById('overlay').addEventListener('click', function(e) {
   if (e.target === this) chiudiModal();
 });
 
+// Genera ID univoco prenotazione
+function generaID() {
+  return Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2,4).toUpperCase();
+}
+
 async function invia() {
   const nome    = document.getElementById('inp-nome').value.trim();
   const cognome = document.getElementById('inp-cognome').value.trim();
@@ -530,6 +546,8 @@ async function invia() {
   const qty  = document.getElementById('inp-qty').value;
   const note = document.getElementById('inp-note').value.trim();
   const tel  = document.getElementById('inp-tel').value.trim();
+  const id   = generaID();
+  const link_annulla = SITO_URL + '?annulla=' + id;
 
   const btn = document.querySelector('.btn-submit');
   btn.textContent = 'Invio in corso…';
@@ -537,14 +555,16 @@ async function invia() {
 
   try {
     const dati = {
-      gadget:   itemCorrente.nome,
-      prezzo:   '€ ' + itemCorrente.prezzo,
-      quantita: qty,
-      nome:     nome + ' ' + cognome,
-      email:    email,
-      telefono: tel || '—',
-      note:          note || '—',
-      riga_prodotto: itemCorrente.riga || '',
+      id_prenotazione: id,
+      gadget:          itemCorrente.nome,
+      prezzo:          '€ ' + itemCorrente.prezzo,
+      quantita:        qty,
+      nome:            nome + ' ' + cognome,
+      email:           email,
+      telefono:        tel || '—',
+      note:            note || '—',
+      riga_prodotto:   itemCorrente.riga || '',
+      link_annulla:    link_annulla,
     };
 
     // 1. Salva su Google Sheets
@@ -570,6 +590,48 @@ async function invia() {
     btn.disabled = false;
   }
 }
+
+// Gestisce annullamento da link in mail
+async function gestisciAnnullamento() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('annulla');
+  if (!id) return;
+
+  // Mostra il modal con schermata di annullamento in corso
+  document.getElementById('modal-form-area').style.display = 'none';
+  document.getElementById('overlay').classList.add('open');
+
+  const loadingDiv = document.createElement('div');
+  loadingDiv.className = 'success-screen';
+  loadingDiv.style.display = 'block';
+  loadingDiv.innerHTML = '<div class="success-icon">⏳</div><h2>Annullamento in corso...</h2>';
+  document.querySelector('.modal').appendChild(loadingDiv);
+
+  try {
+    const res  = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ azione: 'annulla', id_prenotazione: id, token: SCRIPT_TOKEN }),
+    });
+    const json = await res.json();
+    loadingDiv.remove();
+    if (json.esito === 'ok') {
+      document.getElementById('annulla-screen').style.display = 'block';
+    } else {
+      document.getElementById('annulla-error-msg').textContent = json.messaggio || 'Prenotazione non trovata o già annullata.';
+      document.getElementById('annulla-error-screen').style.display = 'block';
+    }
+  } catch(err) {
+    loadingDiv.remove();
+    document.getElementById('annulla-error-msg').textContent = 'Errore di connessione. Riprova più tardi.';
+    document.getElementById('annulla-error-screen').style.display = 'block';
+  }
+
+  // Rimuove il parametro dall'URL senza ricaricare la pagina
+  window.history.replaceState({}, '', window.location.pathname);
+}
+
+// Avvia controllo annullamento al caricamento pagina
+gestisciAnnullamento();
 </script>
 </body>
 </html>
