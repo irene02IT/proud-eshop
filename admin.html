@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – Lecco Pride Shop</title>
+<link rel="icon" href="https://www.leccopride.it/wordpress/wp-content/uploads/2026/02/cropped-1000235943.png">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --giallo: #FFD93D;
+    --arancio: #FF6B35;
+    --verde: #2EC4B6;
+    --blu: #1A1A2E;
+    --carta: #FFFBF0;
+    --rosso: #E63946;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f5f0; color: var(--blu); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: var(--blu);
+    color: white;
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-logo { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 700; }
+  .header-logo span { color: var(--giallo); }
+  .header-badge-admin {
+    background: var(--arancio);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .btn-reload {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    border-radius: 100px;
+    padding: 7px 16px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.15s;
+  }
+  .btn-reload:hover { background: rgba(255,255,255,0.2); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid #eee;
+    padding: 0 2rem;
+    gap: 0;
+  }
+  .tab {
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    color: #888;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab.active { color: var(--blu); border-bottom-color: var(--arancio); }
+  .tab:hover:not(.active) { color: var(--blu); }
+
+  /* CONTENT */
+  .content { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.25rem;
+    text-align: center;
+    border: 1.5px solid #eee;
+  }
+  .stat-num { font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 900; }
+  .stat-label { font-size: 0.75rem; color: #888; margin-top: 4px; }
+  .stat-card.verde .stat-num { color: var(--verde); }
+  .stat-card.arancio .stat-num { color: var(--arancio); }
+  .stat-card.rosso .stat-num { color: var(--rosso); }
+  .stat-card.blu .stat-num { color: var(--blu); }
+
+  /* SEZIONE TITOLO */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  /* FILTRO */
+  .filtro-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+  .filtro-btn {
+    background: white;
+    border: 1.5px solid #ddd;
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #555;
+  }
+  .filtro-btn.active { background: var(--blu); color: white; border-color: var(--blu); }
+  input.cerca {
+    flex: 1;
+    min-width: 180px;
+    border: 1.5px solid #ddd;
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+  input.cerca:focus { border-color: var(--verde); }
+
+  /* CARD PRENOTAZIONE */
+  .pren-list { display: flex; flex-direction: column; gap: 10px; }
+  .pren-card {
+    background: white;
+    border-radius: 14px;
+    border: 1.5px solid #eee;
+    padding: 1rem 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    align-items: center;
+    transition: border-color 0.15s;
+  }
+  .pren-card:hover { border-color: #ccc; }
+  .pren-card.ritirata { opacity: 0.5; background: #fafafa; }
+  .pren-card.annullata { opacity: 0.4; background: #fafafa; }
+  .pren-info { display: flex; flex-direction: column; gap: 3px; }
+  .pren-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pren-nome { font-weight: 500; font-size: 0.95rem; }
+  .pren-gadget {
+    background: #fff3e0;
+    color: #c75000;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 100px;
+  }
+  .pren-qty {
+    background: #e8f5ff;
+    color: #0066aa;
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 100px;
+  }
+  .badge-stato {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 2px 9px;
+    border-radius: 100px;
+  }
+  .badge-attiva { background: #e6faf5; color: #0a8060; }
+  .badge-ritirata { background: #e8f5ff; color: #0055aa; }
+  .badge-annullata { background: #fee; color: #aa0000; }
+  .pren-sub { font-size: 0.78rem; color: #888; }
+  .pren-id { font-family: monospace; font-size: 0.72rem; color: #bbb; }
+  .pren-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn-ritira {
+    background: var(--verde);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 7px 16px;
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .btn-ritira:hover { background: #22a98e; }
+  .btn-ritira:active { transform: scale(0.97); }
+  .btn-ritira:disabled { background: #ccc; cursor: default; }
+
+  /* CARD PRODOTTO */
+  .prod-list { display: flex; flex-direction: column; gap: 10px; }
+  .prod-card {
+    background: white;
+    border-radius: 14px;
+    border: 1.5px solid #eee;
+    padding: 1rem 1.25rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: center;
+  }
+  .prod-emoji { font-size: 2rem; line-height: 1; }
+  .prod-info { display: flex; flex-direction: column; gap: 3px; }
+  .prod-nome { font-weight: 500; font-size: 0.95rem; }
+  .prod-prezzo { font-size: 0.8rem; color: #888; }
+  .qty-ctrl { display: flex; align-items: center; gap: 8px; }
+  .qty-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid #ddd;
+    background: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1;
+    color: var(--blu);
+  }
+  .qty-btn:hover { background: var(--blu); color: white; border-color: var(--blu); }
+  .qty-val {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+  }
+  .qty-val.zero { color: var(--rosso); }
+  .qty-val.low { color: var(--arancio); }
+  .qty-val.ok { color: var(--verde); }
+  .badge-disp {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+  .badge-si { background: #e6faf5; color: #0a8060; }
+  .badge-no { background: #fee; color: #aa0000; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--blu);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+  .toast.ok { background: var(--verde); }
+  .toast.err { background: var(--rosso); }
+
+  .loading { color: #999; font-size: 0.9rem; padding: 2rem 0; text-align: center; }
+  .empty { color: #bbb; font-size: 0.9rem; padding: 2rem 0; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="header-logo">Lecco <span>Pride</span></div>
+    <div class="header-badge-admin">Admin</div>
+  </div>
+  <button class="btn-reload" onclick="ricaricaTutto()">↻ Aggiorna</button>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="mostraTab('prenotazioni', this)">📋 Prenotazioni</div>
+  <div class="tab" onclick="mostraTab('prodotti', this)">📦 Prodotti</div>
+</div>
+
+<div class="content">
+
+  <!-- STATS -->
+  <div class="stats-grid" id="stats">
+    <div class="stat-card blu"><div class="stat-num" id="stat-tot">–</div><div class="stat-label">Prenotazioni totali</div></div>
+    <div class="stat-card verde"><div class="stat-num" id="stat-att">–</div><div class="stat-label">Da ritirare</div></div>
+    <div class="stat-card arancio"><div class="stat-num" id="stat-rit">–</div><div class="stat-label">Ritirate</div></div>
+    <div class="stat-card rosso"><div class="stat-num" id="stat-ann">–</div><div class="stat-label">Annullate</div></div>
+  </div>
+
+  <!-- PANEL PRENOTAZIONI -->
+  <div class="panel active" id="panel-prenotazioni">
+    <div class="section-header">
+      <div class="section-title">Prenotazioni</div>
+    </div>
+    <div class="filtro-bar">
+      <input class="cerca" id="cerca-pren" type="text" placeholder="Cerca per nome, gadget, ID…" oninput="renderPrenotazioni()">
+      <button class="filtro-btn active" onclick="setFiltro('Tutte', this)">Tutte</button>
+      <button class="filtro-btn" onclick="setFiltro('Attiva', this)">Da ritirare</button>
+      <button class="filtro-btn" onclick="setFiltro('Ritirata', this)">Ritirate</button>
+      <button class="filtro-btn" onclick="setFiltro('Annullata', this)">Annullate</button>
+    </div>
+    <div class="pren-list" id="pren-list"><div class="loading">Caricamento…</div></div>
+  </div>
+
+  <!-- PANEL PRODOTTI -->
+  <div class="panel" id="panel-prodotti">
+    <div class="section-header">
+      <div class="section-title">Quantità disponibili</div>
+    </div>
+    <div class="prod-list" id="prod-list"><div class="loading">Caricamento…</div></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG — stesso valore dell'eshop ─────────────────────────────────────────
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwStPeblJ-Hl1i043bAOiFpf9UFr-YqKXicR-BrlT1nTVAJZ2zwa-DchzipElWbHRE2w/exec'; // stesso URL del file eshop
+const SCRIPT_TOKEN      = 'Proudtobe2026!';
+// ─────────────────────────────────────────────────────────────────────────────
+
+let prenotazioni = [];
+let prodotti     = [];
+let filtroStato  = 'Tutte';
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', ricaricaTutto);
+
+async function ricaricaTutto() {
+  await Promise.all([caricaPrenotazioni(), caricaProdotti()]);
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function mostraTab(id, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+// ── PRENOTAZIONI ─────────────────────────────────────────────────────────────
+async function caricaPrenotazioni() {
+  try {
+    const res  = await fetch(GOOGLE_SCRIPT_URL + '?azione=prenotazioni');
+    const json = await res.json();
+    prenotazioni = json;
+    aggiornaStats();
+    renderPrenotazioni();
+  } catch(err) {
+    document.getElementById('pren-list').innerHTML = '<div class="empty">Errore caricamento prenotazioni.</div>';
+  }
+}
+
+function aggiornaStats() {
+  const tot = prenotazioni.length;
+  const att = prenotazioni.filter(p => p.stato === 'Attiva').length;
+  const rit = prenotazioni.filter(p => p.stato === 'Ritirata').length;
+  const ann = prenotazioni.filter(p => p.stato === 'Annullata').length;
+  document.getElementById('stat-tot').textContent = tot;
+  document.getElementById('stat-att').textContent = att;
+  document.getElementById('stat-rit').textContent = rit;
+  document.getElementById('stat-ann').textContent = ann;
+}
+
+function setFiltro(stato, el) {
+  filtroStato = stato;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderPrenotazioni();
+}
+
+function renderPrenotazioni() {
+  const cerca = document.getElementById('cerca-pren').value.toLowerCase();
+  let lista = prenotazioni;
+
+  if (filtroStato !== 'Tutte') {
+    lista = lista.filter(p => p.stato === filtroStato);
+  }
+  if (cerca) {
+    lista = lista.filter(p =>
+      (p.nome   || '').toLowerCase().includes(cerca) ||
+      (p.gadget || '').toLowerCase().includes(cerca) ||
+      (p.id     || '').toLowerCase().includes(cerca) ||
+      (p.email  || '').toLowerCase().includes(cerca)
+    );
+  }
+
+  const el = document.getElementById('pren-list');
+  if (!lista.length) { el.innerHTML = '<div class="empty">Nessuna prenotazione trovata.</div>'; return; }
+
+  el.innerHTML = lista.map(p => {
+    const statoClass = p.stato === 'Ritirata' ? 'ritirata' : p.stato === 'Annullata' ? 'annullata' : '';
+    const badgeClass = p.stato === 'Attiva' ? 'badge-attiva' : p.stato === 'Ritirata' ? 'badge-ritirata' : 'badge-annullata';
+    const btnDisabled = p.stato !== 'Attiva' ? 'disabled' : '';
+    const btnLabel = p.stato === 'Ritirata' ? '✓ Ritirata' : p.stato === 'Annullata' ? '✗ Annullata' : 'Segna ritirata';
+    return `
+    <div class="pren-card ${statoClass}" id="pren-${p.id}">
+      <div class="pren-info">
+        <div class="pren-top">
+          <span class="pren-nome">${p.nome || '—'}</span>
+          <span class="pren-gadget">${p.gadget || '—'}</span>
+          <span class="pren-qty">×${p.quantita || 1}</span>
+          <span class="badge-stato ${badgeClass}">${p.stato || 'Attiva'}</span>
+        </div>
+        <div class="pren-sub">${p.email || ''} ${p.telefono && p.telefono !== '—' ? '· ' + p.telefono : ''} · ${p.data || ''}</div>
+        ${p.note && p.note !== '—' ? '<div class="pren-sub" style="color:#c75000">Note: ' + p.note + '</div>' : ''}
+        <div class="pren-id">ID: ${p.id || '—'}</div>
+      </div>
+      <div class="pren-actions">
+        <button class="btn-ritira" onclick="segnaRitirata('${p.id}')" ${btnDisabled}>${btnLabel}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function segnaRitirata(id) {
+  const btn = document.querySelector(`#pren-${id} .btn-ritira`);
+  if (btn) { btn.textContent = '…'; btn.disabled = true; }
+
+  try {
+    const res  = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ azione: 'ritira', id_prenotazione: id, token: SCRIPT_TOKEN }),
+    });
+    const json = await res.json();
+    if (json.esito === 'ok') {
+      const p = prenotazioni.find(p => p.id === id);
+      if (p) p.stato = 'Ritirata';
+      aggiornaStats();
+      renderPrenotazioni();
+      mostraToast('✓ Prenotazione segnata come ritirata', 'ok');
+    } else {
+      mostraToast(json.messaggio || 'Errore', 'err');
+      if (btn) { btn.textContent = 'Segna ritirata'; btn.disabled = false; }
+    }
+  } catch(err) {
+    mostraToast('Errore di connessione', 'err');
+    if (btn) { btn.textContent = 'Segna ritirata'; btn.disabled = false; }
+  }
+}
+
+// ── PRODOTTI ──────────────────────────────────────────────────────────────────
+async function caricaProdotti() {
+  try {
+    const res  = await fetch(GOOGLE_SCRIPT_URL + '?azione=prodotti');
+    const json = await res.json();
+    // Carica tutti i prodotti, inclusi quelli esauriti
+    const res2  = await fetch(GOOGLE_SCRIPT_URL + '?azione=prodotti_tutti');
+    const json2 = await res2.json();
+    prodotti = Array.isArray(json2) ? json2 : json;
+    renderProdotti();
+  } catch(err) {
+    document.getElementById('prod-list').innerHTML = '<div class="empty">Errore caricamento prodotti.</div>';
+  }
+}
+
+function renderProdotti() {
+  const el = document.getElementById('prod-list');
+  if (!prodotti.length) { el.innerHTML = '<div class="empty">Nessun prodotto trovato.</div>'; return; }
+
+  el.innerHTML = prodotti.map(p => {
+    const qty = parseInt(p.quantita) || 0;
+    const qtyClass = qty === 0 ? 'zero' : qty <= 5 ? 'low' : 'ok';
+    const dispClass = p.disponibile === 'SI' ? 'badge-si' : 'badge-no';
+    const dispLabel = p.disponibile === 'SI' ? 'Disponibile' : 'Non disponibile';
+    return `
+    <div class="prod-card" id="prod-${p.riga}">
+      <div class="prod-emoji">${p.emoji || '📦'}</div>
+      <div class="prod-info">
+        <div class="prod-nome">${p.nome}</div>
+        <div class="prod-prezzo">€ ${p.prezzo} · <span class="badge-disp ${dispClass}">${dispLabel}</span></div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="cambiaQty(${p.riga}, -1)">−</button>
+        <div class="qty-val ${qtyClass}" id="qty-${p.riga}">${qty}</div>
+        <button class="qty-btn" onclick="cambiaQty(${p.riga}, +1)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function cambiaQty(riga, delta) {
+  const el  = document.getElementById('qty-' + riga);
+  const qtyAtt = parseInt(el.textContent) || 0;
+  const nuova  = Math.max(0, qtyAtt + delta);
+  el.textContent = nuova;
+  el.className = 'qty-val ' + (nuova === 0 ? 'zero' : nuova <= 5 ? 'low' : 'ok');
+
+  try {
+    const res  = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ azione: 'aggiorna_qty', riga_prodotto: riga, nuova_quantita: nuova, token: SCRIPT_TOKEN }),
+    });
+    const json = await res.json();
+    if (json.esito === 'ok') {
+      const p = prodotti.find(p => p.riga == riga);
+      if (p) { p.quantita = nuova; p.disponibile = nuova > 0 ? 'SI' : 'NO'; }
+      mostraToast('Quantità aggiornata', 'ok');
+      renderProdotti();
+    } else {
+      el.textContent = qtyAtt; // ripristina
+      mostraToast(json.messaggio || 'Errore', 'err');
+    }
+  } catch(err) {
+    el.textContent = qtyAtt;
+    mostraToast('Errore di connessione', 'err');
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function mostraToast(msg, tipo) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (tipo || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.className = 'toast', 2800);
+}
+</script>
+</body>
+</html>
